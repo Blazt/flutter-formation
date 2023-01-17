@@ -71,40 +71,61 @@ class AppBarIcon extends StatelessWidget {
 }
 
 class Content extends StatelessWidget {
-  final _scrollController = ScrollController();
-  final _containerKey = GlobalKey();
+  String sentence = "";
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
   Content({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Scrollbar(
-        controller: _scrollController,
-        child: SingleChildScrollView(
-            controller: _scrollController,
-            child: Column(children: [
-              Container(
-                height: size.height / 2,
-                color: Colors.blue,
-              ),
-              Container(
-                key: _containerKey,
-                height: size.height / 2,
-                color: Colors.red,
-              ),
-              GestureDetector(
-                  onTap: () {
-                    RenderBox box = _containerKey.currentContext!
-                        .findRenderObject() as RenderBox;
-                    Offset position = box.localToGlobal(Offset.zero);
-                    double y = position.dy;
-                    print(y);
-                  },
-                  child: Container(
-                    height: size.height / 2,
-                    color: Colors.yellow,
-                  ))
-            ])));
+    return Form(
+        key: _formKey,
+        child: Column(children: [
+          const SizedBox(height: 10),
+          TextFormField(
+            initialValue: "initial value",
+            validator: (String? value) {
+              if (value == null || value.isEmpty) {
+                return 'Please enter some text';
+              }
+              return null;
+            },
+          ),
+          const SizedBox(height: 10),
+          ElevatedButton(
+              onPressed: () {
+                if (_formKey.currentState!.validate()) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    _getDialog(context),
+                  );
+                } else {
+                  print("passe pas");
+                }
+              },
+              child: const Text("valider"))
+        ]));
+  }
+
+  SnackBar _getDialog(BuildContext context) {
+    return SnackBar(
+        content: const Text('Processing Data'),
+        duration: const Duration(seconds: 5),
+        action: SnackBarAction(
+            label: "Undo",
+            onPressed: () async {
+              await showDialog(
+                  context: context,
+                  builder: (BuildContext context) {
+                    return AlertDialog(
+                        title: const Text("Warning !"),
+                        content: ElevatedButton(
+                          child: const Text("Valider !"),
+                          onPressed: () {
+                            Navigator.of(context).pop("grgr");
+                          },
+                        ));
+                  });
+              print("test");
+            }));
   }
 }
