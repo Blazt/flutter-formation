@@ -95,9 +95,11 @@ class Content extends StatelessWidget {
               ),
               GestureDetector(
                   onTap: () {
-                    _scrollController.animateTo(0,
-                        duration: const Duration(milliseconds: 1000),
-                        curve: Curves.easeIn);
+                    RenderBox box = _containerKey.currentContext!
+                        .findRenderObject() as RenderBox;
+                    Offset position = box.localToGlobal(Offset.zero);
+                    double y = position.dy;
+                    print(y);
                   },
                   child: Container(
                     height: size.height / 2,
