@@ -79,26 +79,31 @@ class Content extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
-    return Stack(clipBehavior: Clip.none, children: [
-      Container(
-          width: size.width * 0.75,
-          height: 150,
-          decoration: BoxDecoration(
-              color: Colors.red,
-              border: Border.all(color: Colors.yellow, width: 10)),
-          child: const Text(
-              "testreferfer rfefef erfe fer fer fer fer ferfrf erferferf rrefer")),
-      Positioned(
-          bottom: -10,
-          right: -10,
-          child: Container(
-            width: 50,
-            height: 50,
-            decoration: const BoxDecoration(
-                color: Colors.green,
-                borderRadius: BorderRadius.all(Radius.circular(50))),
-          )),
+    return Column(children: [
+      FutureBuilder(
+          future: getText(),
+          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+            return Text(snapshot.connectionState.toString());
+          }),
+      StreamBuilder(
+          stream: getNumbers(),
+          builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
+            return Text(
+                "${snapshot.connectionState} ${snapshot.error} ${snapshot.data}");
+          })
     ]);
+  }
+
+  Future<String> getText() async {
+    await Future.delayed(const Duration(seconds: 5));
+    return "Mon contenu";
+  }
+
+  Stream<int> getNumbers() async* {
+    for (int i = 0; i < 10; i++) {
+      yield i;
+      await Future.delayed(const Duration(seconds: 1));
+    }
+    throw Exception("test");
   }
 }
