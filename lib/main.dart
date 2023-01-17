@@ -8,11 +8,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        /*theme: ThemeData.light().copyWith(
-            primaryIconTheme: IconThemeData(
-                color: Colors.black54
-            )
-        )*/
+        theme: ThemeData.light().copyWith(),
         title: 'Flutter Demo',
         debugShowCheckedModeBanner: false,
         home: Scaffold(
@@ -75,35 +71,38 @@ class AppBarIcon extends StatelessWidget {
 }
 
 class Content extends StatelessWidget {
-  const Content({super.key});
+  final _scrollController = ScrollController();
+  final _containerKey = GlobalKey();
+
+  Content({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Column(children: [
-      FutureBuilder(
-          future: getText(),
-          builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
-            return Text(snapshot.connectionState.toString());
-          }),
-      StreamBuilder(
-          stream: getNumbers(),
-          builder: (BuildContext context, AsyncSnapshot<int> snapshot) {
-            return Text(
-                "${snapshot.connectionState} ${snapshot.error} ${snapshot.data}");
-          })
-    ]);
-  }
-
-  Future<String> getText() async {
-    await Future.delayed(const Duration(seconds: 5));
-    return "Mon contenu";
-  }
-
-  Stream<int> getNumbers() async* {
-    for (int i = 0; i < 10; i++) {
-      yield i;
-      await Future.delayed(const Duration(seconds: 1));
-    }
-    throw Exception("test");
+    final size = MediaQuery.of(context).size;
+    return Scrollbar(
+        controller: _scrollController,
+        child: SingleChildScrollView(
+            controller: _scrollController,
+            child: Column(children: [
+              Container(
+                height: size.height / 2,
+                color: Colors.blue,
+              ),
+              Container(
+                key: _containerKey,
+                height: size.height / 2,
+                color: Colors.red,
+              ),
+              GestureDetector(
+                  onTap: () {
+                    _scrollController.animateTo(0,
+                        duration: const Duration(milliseconds: 1000),
+                        curve: Curves.easeIn);
+                  },
+                  child: Container(
+                    height: size.height / 2,
+                    color: Colors.yellow,
+                  ))
+            ])));
   }
 }
