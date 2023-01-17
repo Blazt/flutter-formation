@@ -71,61 +71,62 @@ class AppBarIcon extends StatelessWidget {
 }
 
 class Content extends StatelessWidget {
-  String sentence = "";
-  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  final GlobalKey<NavigatorState> _navigatorKey = GlobalKey<NavigatorState>();
 
   Content({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Form(
-        key: _formKey,
-        child: Column(children: [
-          const SizedBox(height: 10),
-          TextFormField(
-            initialValue: "initial value",
-            validator: (String? value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter some text';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 10),
-          ElevatedButton(
-              onPressed: () {
-                if (_formKey.currentState!.validate()) {
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    _getDialog(context),
-                  );
-                } else {
-                  print("passe pas");
-                }
-              },
-              child: const Text("valider"))
-        ]));
+    return Navigator(
+      key: _navigatorKey,
+      initialRoute: "/",
+      onGenerateRoute: (RouteSettings settings) {
+        print(settings.name);
+        return MaterialPageRoute(builder: (BuildContext context) {
+          return _getRoutes()[settings.name]!;
+        });
+      },
+    );
   }
 
-  SnackBar _getDialog(BuildContext context) {
-    return SnackBar(
-        content: const Text('Processing Data'),
-        duration: const Duration(seconds: 5),
-        action: SnackBarAction(
-            label: "Undo",
-            onPressed: () async {
-              await showDialog(
-                  context: context,
-                  builder: (BuildContext context) {
-                    return AlertDialog(
-                        title: const Text("Warning !"),
-                        content: ElevatedButton(
-                          child: const Text("Valider !"),
-                          onPressed: () {
-                            Navigator.of(context).pop("grgr");
-                          },
-                        ));
-                  });
-              print("test");
-            }));
+  Map<String, Widget> _getRoutes() {
+    return <String, Widget>{
+      "/": FirstScreen(navigatorKey: _navigatorKey),
+      "/second": SecondScreen(navigatorKey: _navigatorKey),
+    };
+  }
+}
+
+class FirstScreen extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const FirstScreen({required this.navigatorKey, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+        onPressed: () async {
+          final result =
+              await navigatorKey.currentState!.pushNamed("/second") as int;
+          print(result);
+        },
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+        child: Text("test"));
+  }
+}
+
+class SecondScreen extends StatelessWidget {
+  final GlobalKey<NavigatorState> navigatorKey;
+
+  const SecondScreen({required this.navigatorKey, super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ElevatedButton(
+        onPressed: () {
+          navigatorKey.currentState!.pop(123);
+        },
+        style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+        child: Text("test"));
   }
 }
